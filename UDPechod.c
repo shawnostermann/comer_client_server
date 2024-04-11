@@ -6,6 +6,8 @@
 
 #include <stdio.h>
 
+#include "libnet.h"
+
 
 #define BUFSIZE 65536
 
@@ -21,7 +23,7 @@ main(int argc, char **argv)
         char    *service = "echo";      /* service name or port number  */
         char    buf[BUFSIZE];           /* "input" buffer */
         int     sock;                   /* server socket                */
-        int     alen;                   /* from-address length          */
+        u_int   alen;                   /* from-address length          */
         int     buflen;
 
         switch (argc) {

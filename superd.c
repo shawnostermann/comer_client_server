@@ -9,30 +9,36 @@
 #include <sys/signal.h>
 #include <sys/wait.h>
 #include <netinet/in.h>
-
+#include <strings.h>
+#include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 
-extern int      errno;
-extern char     *sys_errlist[];
+#include "libnet.h"
 
 #define UDP_SERV        0
 #define TCP_SERV        1
 
 #define NOSOCK          -1      /* an invalid socket descriptor */
 
-int     TCPechod(), TCPchargend(), TCPdaytimed(), TCPtimed(), reaper();
+
+int TCPechod(), TCPchargend(), TCPdaytimed(), TCPtimed();
 
 struct service {
         char    *sv_name;
         char    sv_useTCP;
         int     sv_sock;
-        int     (*sv_func)();
+        int     (*sv_func)(int sock);
 } svent[] = {   { "echo", TCP_SERV, NOSOCK, TCPechod },
                 { "chargen", TCP_SERV, NOSOCK, TCPchargend },
                 { "daytime", TCP_SERV, NOSOCK, TCPdaytimed },
                 { "time", TCP_SERV, NOSOCK, TCPtimed },
                 { 0, 0, 0, 0 },
         };
+
+
+void reaper(int sig_num);
+void doTCP(struct service  *psv);
 
 #ifndef MAX
 #define MAX(x, y)       ((x) > (y) ? (x) : (y))
@@ -57,13 +63,13 @@ main(int argc, char *argv[])
         fd_set  afds, rfds;             /* readable file descriptors    */
 
         switch (argc) {
-        case 1:
-                break;
-        case 2:
-                portbase = (u_short) atoi(argv[1]);
-                break;
-        default:
-                errexit("usage: superd [portbase]\n");
+                case 1:
+                        break;
+                case 2:
+                        portbase = (u_short) atoi(argv[1]);
+                        break;
+                default:
+                        errexit("usage: superd [portbase]\n");
         }
 
         nfds = 0;
@@ -87,7 +93,7 @@ main(int argc, char *argv[])
                                 continue;
                         errexit("select error: %s\n", sys_errlist[errno]);
                 }
-                for (fd=0; fd<nfds; ++fd)
+                for (fd=0; fd<nfds; ++fd) {
                         if (FD_ISSET(fd, &rfds)) {
                                 psv = fd2sv[fd];
                                 if (psv->sv_useTCP)
@@ -95,6 +101,7 @@ main(int argc, char *argv[])
                                 else
                                         psv->sv_func(psv->sv_sock);
                         }
+                }
         }
 }
 
@@ -102,12 +109,11 @@ main(int argc, char *argv[])
  * doTCP - handle a TCP service connection request
  *------------------------------------------------------------------------
  */
-int
-doTCP(psv)
-struct service  *psv;
+void
+doTCP(struct service  *psv)
 {
-        struct sockaddr_in fsin;        /* the request from address     */
-        int     alen;                   /* from-address length          */
+        struct  sockaddr_in fsin;        /* the request from address     */
+        u_int   alen;                   /* from-address length          */
         int     fd, ssock;
 
         alen = sizeof(fsin);
@@ -115,13 +121,13 @@ struct service  *psv;
         if (ssock < 0)
                 errexit("accept: %s\n", sys_errlist[errno]);
         switch (fork()) {
-        case 0: 
-                break;
-        case -1:
-                errexit("fork: %s\n", sys_errlist[errno]);
-        default:
-                (void) close(ssock);
-                return;         /* parent */
+                case 0: 
+                        break;
+                case -1:
+                        errexit("fork: %s\n", sys_errlist[errno]);
+                default:
+                        (void) close(ssock);
+                        return;         /* parent */
         }
         /* child */
 
@@ -135,11 +141,10 @@ struct service  *psv;
  * reaper - clean up zombie children
  *------------------------------------------------------------------------
  */
-int
-reaper()
+void reaper(int sig_num)
 {
-        union wait      status;
+        int status;
 
-        while (wait3(&status, WNOHANG, (struct rusage *)0) >= 0)
+        while (wait3(&status, WNOHANG, NULL) >= 0)
                 /* empty */;
 }

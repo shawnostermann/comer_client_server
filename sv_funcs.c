@@ -1,11 +1,21 @@
 /* sv_funcs.c - TCPechod, TCPchargend, TCPdaytimed, TCPtimed */
 
 #include <sys/types.h>
+#include <sys/types.h>
+#include <sys/uio.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <sys/errno.h>
+#include <arpa/inet.h>
+#include <string.h>
+#include <time.h>
 
-#define BUFSIZ  4096            /* max read buffer size */
 
-extern  int     errno;
-extern  char    *sys_errlist[];
+
+#include "libnet.h"
+
+#define MYBUFSIZ  4096            /* max read buffer size */
+
 
 /*------------------------------------------------------------------------
  * TCPecho - do TCP ECHO on the given socket
@@ -14,10 +24,10 @@ extern  char    *sys_errlist[];
 int
 TCPechod(int fd)
 {
-        char    buf[BUFSIZ];
+        char    buf[MYBUFSIZ];
         int     cc;
 
-        while (cc = read(fd, buf, sizeof buf)) {
+        while ((cc = read(fd, buf, sizeof(buf)))) {
                 if (cc < 0)
                         errexit("echo read: %s\n", sys_errlist[errno]);
                 if (write(fd, buf, cc) < 0)
@@ -79,8 +89,7 @@ TCPdaytimed(int fd)
 int
 TCPtimed(int fd)
 {
-        time_t  now, time(time_t *);
-        u_long  htonl(long unsigned int);
+        time_t  now;
 
         (void) time(&now);
         now = htonl((u_long)(now + UNIXEPOCH));

@@ -10,7 +10,6 @@ extern  char    doecho, sndbinary, rcvbinary;   /* telnet options */
 extern  char    *host, scrname[];
 extern  FILE    *scrfp;
 
-u_short ntohs(unsigned int);
 
 /*------------------------------------------------------------------------
  * status - print connection status information
@@ -21,7 +20,7 @@ int
 status(FILE *sfp, FILE *tfp, int c)
 {
         struct  sockaddr_in     sin;
-        int                     sinlen;
+        u_int                   sinlen;
 
         fprintf(tfp, "\nconnected to \"%s\" ", host);
 
