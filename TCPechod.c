@@ -91,7 +91,6 @@ TCPechod(int fd)
  * reaper - clean up zombie children
  *------------------------------------------------------------------------
  */
-void
 reaper(int sig_num)
 {
         int status;

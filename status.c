@@ -15,7 +15,6 @@ extern  FILE    *scrfp;
  * status - print connection status information
  *------------------------------------------------------------------------
  */
-/*ARGSUSED*/
 int
 status(FILE *sfp, FILE *tfp, int c)
 {

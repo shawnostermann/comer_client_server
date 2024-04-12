@@ -25,7 +25,7 @@ long mstime(long *pms);
 
 #define NOFILE 100
 char    *hname[NOFILE];                 /* fd to host name mapping      */
-int     rc[NOFILE], wc[NOFILE];         /* read/write character counts  */
+u_int     rc[NOFILE], wc[NOFILE];         /* read/write character counts  */
 char    buf[BUFSIZE];                   /* read/write data buffer       */
 
 
