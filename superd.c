@@ -126,6 +126,7 @@ doTCP(struct service  *psv)
                         break;
                 case -1:
                         errexit("fork: %s\n", strerror(errno));
+                        break;  // above doesn't return
                 default:
                         (void) close(ssock);
                         return;         /* parent */

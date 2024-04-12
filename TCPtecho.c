@@ -25,7 +25,7 @@ long mstime(long *pms);
 
 #define NOFILE 100
 char    *hname[NOFILE];                 /* fd to host name mapping      */
-u_int     rc[NOFILE], wc[NOFILE];         /* read/write character counts  */
+int     rc[NOFILE], wc[NOFILE];         /* read/write character counts  */
 char    buf[BUFSIZE];                   /* read/write data buffer       */
 
 
@@ -135,10 +135,10 @@ reader(int fd, fd_set  *pfdset)
 void
 writer(int fd, fd_set *pfdset)
 {
-        u_int     cc;
+        int     cc;
 
-        cc = write(fd, buf, MIN(sizeof(buf), wc[fd]));
-        if (cc < 0)
+        cc = write(fd, buf, MIN(sizeof(buf), (unsigned)wc[fd]));
+        if (cc == -1)
                 errexit("read: %s\n", strerror(errno));
         wc[fd] -= cc;
         if (wc[fd] == 0) {

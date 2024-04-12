@@ -25,12 +25,12 @@ int
 TCPechod(int fd)
 {
         char    buf[MYBUFSIZ];
-        u_int     cc;
+        int     cc;
 
         while ((cc = read(fd, buf, sizeof(buf)))) {
-                if (cc < 0)
+                if (cc == -1)
                         errexit("echo read: %s\n", strerror(errno));
-                if (write(fd, buf, cc) < 0)
+                if (write(fd, buf, (unsigned) cc) < 0)
                         errexit("echo write: %s\n", strerror(errno));
         }
         return 0;
