@@ -3,7 +3,11 @@
 #
 
 CC=gcc
+# for full portability checking
+CFLAGS= -Wall -Werror -O3 -pedantic -Wextra -Wno-unused-parameter 
+# for normal use
 CFLAGS= -Wall -Werror -O2
+
 LDFLAGS=
 
 LIBFILES =	connectsock.c connectUDP.c connectTCP.c errexit.c \
