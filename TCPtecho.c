@@ -135,7 +135,7 @@ reader(int fd, fd_set  *pfdset)
 void
 writer(int fd, fd_set *pfdset)
 {
-        int     cc;
+        u_int     cc;
 
         cc = write(fd, buf, MIN(sizeof(buf), wc[fd]));
         if (cc < 0)

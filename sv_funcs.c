@@ -25,7 +25,7 @@ int
 TCPechod(int fd)
 {
         char    buf[MYBUFSIZ];
-        int     cc;
+        u_int     cc;
 
         while ((cc = read(fd, buf, sizeof(buf)))) {
                 if (cc < 0)
