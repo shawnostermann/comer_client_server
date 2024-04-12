@@ -54,7 +54,7 @@ main(int argc, char *argv[])
                 fd = connectTCP(argv[i], "echo");
                 if (ioctl(fd, FIONBIO, (char *)&one))
                         errexit("can't mark socket nonblocking: %s\n",
-                                sys_errlist[errno]);
+                                strerror(errno));
                 if (fd > maxfd)
                         maxfd = fd;
                 hname[fd] = argv[i];
@@ -91,7 +91,7 @@ TCPtecho(fd_set  *pafds, int nfds, int ccount, int hcount)
 
                 if (select(nfds, &rfds, &wfds, (fd_set *)0,
                                 (struct timeval *)0) < 0)
-                        errexit("select failed: %s\n",sys_errlist[errno]);
+                        errexit("select failed: %s\n",strerror(errno));
                 for (fd=0; fd<nfds; ++fd) {
                         if (FD_ISSET(fd, &rfds))
                                 if (reader(fd, &rcfds) == 0)
@@ -114,7 +114,7 @@ reader(int fd, fd_set  *pfdset)
 
         cc = read(fd, buf, sizeof(buf));
         if (cc < 0)
-                errexit("read: %s\n", sys_errlist[errno]);
+                errexit("read: %s\n", strerror(errno));
         if (cc == 0)
                 errexit("read: premature end of file\n");
         rc[fd] -= cc;
@@ -139,7 +139,7 @@ writer(int fd, fd_set *pfdset)
 
         cc = write(fd, buf, MIN(sizeof(buf), wc[fd]));
         if (cc < 0)
-                errexit("read: %s\n", sys_errlist[errno]);
+                errexit("read: %s\n", strerror(errno));
         wc[fd] -= cc;
         if (wc[fd] == 0) {
                 (void) shutdown(fd, 1);
@@ -157,7 +157,7 @@ long mstime(long *pms)
         struct timeval          now;
 
         if (gettimeofday(&now, (struct timezone *)0))
-                errexit("gettimeofday: %s\n", sys_errlist[errno]);
+                errexit("gettimeofday: %s\n", strerror(errno));
         if (!pms) {
                 epoch = now;
                 return 0;

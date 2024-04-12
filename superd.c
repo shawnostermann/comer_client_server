@@ -12,6 +12,7 @@
 #include <strings.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "libnet.h"
@@ -22,7 +23,7 @@
 #define NOSOCK          -1      /* an invalid socket descriptor */
 
 
-int TCPechod(), TCPchargend(), TCPdaytimed(), TCPtimed();
+int TCPechod(int sock), TCPchargend(int sock), TCPdaytimed(int sock), TCPtimed(int sock);
 
 struct service {
         char    *sv_name;
@@ -91,7 +92,7 @@ main(int argc, char *argv[])
                                 (struct timeval *)0) < 0) {
                         if (errno == EINTR)
                                 continue;
-                        errexit("select error: %s\n", sys_errlist[errno]);
+                        errexit("select error: %s\n", strerror(errno));
                 }
                 for (fd=0; fd<nfds; ++fd) {
                         if (FD_ISSET(fd, &rfds)) {
@@ -119,12 +120,12 @@ doTCP(struct service  *psv)
         alen = sizeof(fsin);
         ssock = accept(psv->sv_sock, (struct sockaddr *)&fsin, &alen);
         if (ssock < 0)
-                errexit("accept: %s\n", sys_errlist[errno]);
+                errexit("accept: %s\n", strerror(errno));
         switch (fork()) {
                 case 0: 
                         break;
                 case -1:
-                        errexit("fork: %s\n", sys_errlist[errno]);
+                        errexit("fork: %s\n", strerror(errno));
                 default:
                         (void) close(ssock);
                         return;         /* parent */

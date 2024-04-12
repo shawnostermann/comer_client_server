@@ -59,14 +59,16 @@ TCPecho(char *host, char *service)
         while (fgets(buf, sizeof(buf), stdin)) {
                 buf[LINELEN] = '\0';    /* insure line null-terminated  */
                 outchars = strlen(buf);
-                (void) write(s, buf, outchars);
+                if (write(s, buf, outchars) == -1)
+                        errexit("write failed: %s\n", strerror(errno));
+
 
                 /* read it back */
                 for (inchars = 0; inchars < outchars; inchars+=n ) {
                         n = read(s, &buf[inchars], outchars - inchars);
                         if (n < 0)
                                 errexit("socket read failed: %s\n",
-                                        sys_errlist[errno]);
+                                        strerror(errno));
                 }
                 fputs(buf, stdout);
         }

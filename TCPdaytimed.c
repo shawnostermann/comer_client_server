@@ -42,7 +42,7 @@ main(int argc, char **argv)
         while (1) {
                 ssock = accept(msock, (struct sockaddr *)&fsin, &alen);
                 if (ssock < 0)
-                        errexit("accept failed: %s\n",sys_errlist[errno]);
+                        errexit("accept failed: %s\n", strerror(errno));
                 (void) TCPdaytimed(ssock);
                 (void) close(ssock);
         }
@@ -61,5 +61,6 @@ TCPdaytimed(int fd)
 
         (void) time(&now);
         pts = ctime(&now);
-        (void) write(fd, pts, strlen(pts));
+        if (write(fd, pts, strlen(pts)) == -1)
+            errexit("write failed: %s\n", strerror(errno));
 }

@@ -54,7 +54,7 @@ main(int argc, char **argv)
 
                 if (select(nfds, &rfds, (fd_set *)0, (fd_set *)0,
                                 (struct timeval *)0) < 0)
-                        errexit("select: %s\n", sys_errlist[errno]);
+                        errexit("select: %s\n", strerror(errno));
                 if (FD_ISSET(msock, &rfds)) {
                         int     ssock;
 
@@ -63,7 +63,7 @@ main(int argc, char **argv)
                                 &alen);
                         if (ssock < 0)
                                 errexit("accept: %s\n",
-                                        sys_errlist[errno]);
+                                        strerror(errno));
                         FD_SET(ssock, &afds);
                 }
                 for (fd=0; fd<nfds; ++fd)
@@ -87,8 +87,8 @@ echo(int fd)
 
         cc = read(fd, buf, sizeof buf);
         if (cc < 0)
-                errexit("echo read: %s\n", sys_errlist[errno]);
+                errexit("echo read: %s\n", strerror(errno));
         if (cc && write(fd, buf, cc) < 0)
-                errexit("echo write: %s\n", sys_errlist[errno]);
+                errexit("echo write: %s\n", strerror(errno));
         return cc;
 }

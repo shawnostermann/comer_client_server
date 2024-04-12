@@ -7,6 +7,8 @@
 #include <string.h>
 #include <sys/errno.h>
 #include <time.h>
+#include <arpa/inet.h>
+
 #include "libnet.h"
 
 #define BUFSIZE 64
@@ -44,13 +46,14 @@ main(int argc, char **argv)
 
         s = connectUDP(host, service);
 
-        (void) write(s, MSG, strlen(MSG));
+        if (write(s, MSG, strlen(MSG)) == -1)
+                errexit("write failed: %s\n", strerror(errno));
 
         /* Read the time */
 
         n = read(s, (char *)&now, sizeof(now));
         if (n < 0)
-                errexit("read failed: %s\n", sys_errlist[errno]);
+                errexit("read failed: %s\n", strerror(errno));
         now = ntohl((u_long)now);       /* put in host byte order       */
         now -= UNIXEPOCH;               /* convert UCT to UNIX epoch    */
         printf("%s", ctime(&now));

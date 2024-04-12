@@ -11,12 +11,13 @@
 #include <sys/errno.h>
 #include <netinet/in.h>
 #include <stdio.h>
+#include <string.h>
 #include "libnet.h"
 
 #define QLEN               5    /* maximum connection queue length      */
 #define BUFSIZE         4096
 
-void reaper();
+void reaper(int sig_num);
 int TCPechod(int fd);
 
 /*------------------------------------------------------------------------
@@ -52,7 +53,7 @@ main(int argc, char *argv[])
                 if (ssock < 0) {
                         if (errno == EINTR)
                                 continue;
-                        errexit("accept: %s\n", sys_errlist[errno]);
+                        errexit("accept: %s\n", strerror(errno));
                 }
                 switch (fork()) {
                 case 0:         /* child */
@@ -62,7 +63,7 @@ main(int argc, char *argv[])
                         (void) close(ssock);
                         break;
                 case -1:
-                        errexit("fork: %s\n", sys_errlist[errno]);
+                        errexit("fork: %s\n", strerror(errno));
                 }
         }
 }
@@ -79,9 +80,9 @@ TCPechod(int fd)
 
         while ((cc = read(fd, buf, sizeof buf))) {
                 if (cc < 0)
-                        errexit("echo read: %s\n", sys_errlist[errno]);
+                        errexit("echo read: %s\n", strerror(errno));
                 if (write(fd, buf, cc) < 0)
-                        errexit("echo write: %s\n", sys_errlist[errno]);
+                        errexit("echo write: %s\n", strerror(errno));
         }
         return 0;
 }
@@ -91,7 +92,7 @@ TCPechod(int fd)
  *------------------------------------------------------------------------
  */
 void
-reaper()
+reaper(int sig_num)
 {
         int status;
 

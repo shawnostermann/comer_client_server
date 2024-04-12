@@ -6,16 +6,10 @@
 #include <stdlib.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <string.h>
+#include <errno.h>
 
 #include "libnet.h"
-
-
-extern int      errno;
-extern char     *sys_errlist[];
-
-#ifdef OLD
-u_short htons(unsigned int), ntohs(unsigned int);
-#endif
 
 u_short portbase = 0;           /* port base, for non-root servers      */
 
@@ -58,14 +52,14 @@ passivesock(char *service, char *protocol, int qlen)
     /* Allocate a socket */
         s = socket(PF_INET, type, ppe->p_proto);
         if (s < 0)
-                errexit("can't create socket: %s\n", sys_errlist[errno]);
+                errexit("can't create socket: %s\n", strerror(errno));
 
     /* Bind the socket */
         if (bind(s, (struct sockaddr *)&sin, sizeof(sin)) < 0)
                 errexit("can't bind to %s port: %s\n", service,
-                        sys_errlist[errno]);
+                        strerror(errno));
         if (type == SOCK_STREAM && listen(s, qlen) < 0)
                 errexit("can't listen on %s port: %s\n", service,
-                        sys_errlist[errno]);
+                        strerror(errno));
         return s;
 }

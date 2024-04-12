@@ -56,11 +56,11 @@ UDPecho(char *host, char *service)
         while (fgets(buf, sizeof(buf), stdin)) {
                 buf[LINELEN] = '\0';    /* insure null-terminated */
                 nchars = strlen(buf);
-                (void) write(s, buf, nchars);
+                if (write(s, buf, nchars) == -1)
+                        errexit("socket write failed: %s\n", strerror(errno));  
 
                 if (read(s, buf, nchars) < 0)
-                        errexit("socket read failed: %s\n",
-                                        sys_errlist[errno]);
+                        errexit("socket read failed: %s\n", strerror(errno));
                 fputs(buf, stdout);
         }
 }

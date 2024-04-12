@@ -7,6 +7,8 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <string.h>
+#include <errno.h>
 
 #include "libnet.h"
 
@@ -15,13 +17,6 @@
 #define INADDR_NONE     0xffffffff
 #endif  /* INADDR_NONE */
 
-extern int      errno;
-extern char     *sys_errlist[];
-
-#ifdef OLD
-u_short htons(unsigned int);
-u_long  inet_addr(/* ??? */);
-#endif
 
 /*------------------------------------------------------------------------
  * connectsock - allocate & connect a socket using TCP or UDP
@@ -68,11 +63,11 @@ connectsock(char *host, char *service, char *protocol)
     /* Allocate a socket */
         s = socket(PF_INET, type, ppe->p_proto);
         if (s < 0)
-                errexit("can't create socket: %s\n", sys_errlist[errno]);
+                errexit("can't create socket: %s\n", strerror(errno));
 
     /* Connect the socket */
         if (connect(s, (struct sockaddr *)&sin, sizeof(sin)) < 0)
                 errexit("can't connect to %s.%s: %s\n", host, service,
-                        sys_errlist[errno]);
+                        strerror(errno));
         return s;
 }

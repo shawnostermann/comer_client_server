@@ -44,7 +44,7 @@ main(int argc, char **argv)
                 alen = sizeof(fsin);
                 if (recvfrom(sock, buf, sizeof(buf), 0,
                                 (struct sockaddr *)&fsin, &alen) < 0)
-                        errexit("recvfrom: %s\n", sys_errlist[errno]);
+                        errexit("recvfrom: %s\n", strerror(errno));
                 (void) time(&now);
                 now = htonl((u_long)(now + UNIXEPOCH));
                 (void) sendto(sock, (char *)&now, sizeof(now), 0,

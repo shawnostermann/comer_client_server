@@ -5,10 +5,10 @@
 #include <sys/uio.h>
 #include <unistd.h>
 #include <stdio.h>
-#include <sys/errno.h>
 #include <arpa/inet.h>
 #include <string.h>
 #include <time.h>
+#include <errno.h>
 
 
 
@@ -29,9 +29,9 @@ TCPechod(int fd)
 
         while ((cc = read(fd, buf, sizeof(buf)))) {
                 if (cc < 0)
-                        errexit("echo read: %s\n", sys_errlist[errno]);
+                        errexit("echo read: %s\n", strerror(errno));
                 if (write(fd, buf, cc) < 0)
-                        errexit("echo write: %s\n", sys_errlist[errno]);
+                        errexit("echo write: %s\n", strerror(errno));
         }
         return 0;
 }
@@ -76,7 +76,8 @@ TCPdaytimed(int fd)
 
         (void) time(&now);
         sprintf(buf, "%s", ctime(&now));
-        (void) write(fd, buf, strlen(buf));
+        if (write(fd, buf, strlen(buf)) == -1)
+                errexit("write failed: %s\n", strerror(errno));
         return 0;
 }
 
@@ -93,6 +94,7 @@ TCPtimed(int fd)
 
         (void) time(&now);
         now = htonl((u_long)(now + UNIXEPOCH));
-        (void) write(fd, (char *)&now, sizeof(now));
+        if (write(fd, (char *)&now, sizeof(now)) == -1)
+                errexit("write failed: %s\n", strerror(errno));
         return 0;
 }

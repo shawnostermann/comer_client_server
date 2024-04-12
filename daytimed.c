@@ -56,7 +56,7 @@ main(int argc, char **argv)
 
                 if (select(nfds, &rfds, (fd_set *)0, (fd_set *)0,
                                 (struct timeval *)0) < 0)
-                        errexit("select error: %s\n", sys_errlist[errno]);
+                        errexit("select error: %s\n", strerror(errno));
                 if (FD_ISSET(tsock, &rfds)) {
                         int     ssock;          /* TCP slave socket     */
 
@@ -65,9 +65,10 @@ main(int argc, char **argv)
                                 &alen);
                         if (ssock < 0)
                                 errexit("accept failed: %s\n",
-                                                sys_errlist[errno]);
+                                                strerror(errno));
                         daytime(buf);
-                        (void) write(ssock, buf, strlen(buf));
+                        if (write(ssock, buf, strlen(buf)) == -1)
+                                errexit("write failed: %s\n", strerror(errno));
                         (void) close(ssock);
                 }
                 if (FD_ISSET(usock, &rfds)) {
@@ -75,7 +76,7 @@ main(int argc, char **argv)
                         if (recvfrom(usock, buf, sizeof(buf), 0,
                                 (struct sockaddr *)&fsin, &alen) < 0)
                                 errexit("recvfrom: %s\n",
-                                        sys_errlist[errno]);
+                                        strerror(errno));
                         daytime(buf);
                         (void) sendto(usock, buf, strlen(buf), 0,
                                 (struct sockaddr *)&fsin, sizeof(fsin));
